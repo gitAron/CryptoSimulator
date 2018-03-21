@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">CryptoSimulator</string>
+    <string name="button_navigate_buy">Buy Cryptocurrencies</string>
+    <string name="title_activity_buy">BuyActivity</string>
+    <string name="title_activity_transactions">TransactionsActivity</string>
+    <string name="text_amount">Menge eingeben</string>
+    <string name="button_check_price">Check price</string>
+    <string name="button_buy">Buy this amount</string>
+    <string name="text_exchangerate">1</string>
+
+    <string-array name="cryptocurrencies_array">
+        <item>BTC</item>
+        <item>ETH</item>
+        <item>XRP</item>
+        <item>BCH</item>
+        <item>LTC</item>
+        <item>ADA</item>
+        <item>NEO</item>
+        <item>XLM</item>
+        <item>EOS</item>
+        <item>XMR</item>
+    </string-array>
+
+</resources>

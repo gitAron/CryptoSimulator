@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    style="@style/AppTheme">
+
+    <TextView
+        android:id="@+id/balance_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_exchangerate"
+        />
+
+    <Button
+        android:id="@+id/delete_db_button"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Delete Database"
+        android:onClick="onDeleteDb"/>
+
+    <Button
+        android:id="@+id/delete_sp_button"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Delete Shared Preference"
+        android:onClick="onDeleteSp"/>
+
+</LinearLayout>
