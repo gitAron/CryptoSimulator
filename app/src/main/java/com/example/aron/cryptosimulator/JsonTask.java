@@ -1,8 +1,6 @@
 package com.example.aron.cryptosimulator;
 
-import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,6 +16,8 @@ import java.net.URL;
 
 public class JsonTask extends AsyncTask<String, String, String> {
 
+    //responsible for the http connection over the internet.
+
     public AsyncResponse delegate = null;
 
     protected void onPreExecute() {
@@ -27,6 +27,9 @@ public class JsonTask extends AsyncTask<String, String, String> {
 
     protected String doInBackground(String... params) {
 
+        //start the hhttp connection in this method.
+        //if succesfull the json string will be passed via the onPostExecute() method.
+        //(to the registered delegate)
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
@@ -44,11 +47,9 @@ public class JsonTask extends AsyncTask<String, String, String> {
 
             while ((line = reader.readLine()) != null) {
                 buffer.append(line+"\n");
-
             }
 
             return buffer.toString();
-
 
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -74,5 +75,4 @@ public class JsonTask extends AsyncTask<String, String, String> {
         super.onPostExecute(result);
         delegate.processFinish(result);
     }
-
 }

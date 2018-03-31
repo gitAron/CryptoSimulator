@@ -17,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +30,14 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
+/**
+ * Created by Aron on 11.03.2018.
+ */
+
 public class BuyActivity extends AppCompatActivity implements AsyncResponse {
+
+    //the buy activity java class sets up the buy activity UI and handles all the user input.
+    //if a transaction is being made the transaction is being saved in the db and the UI is updated.
 
     CryptoSimulatorDatabase db;
     JsonTask jsonTask;
@@ -44,15 +52,15 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
     String selected;
     String inputType;
     EditText et;
-    TextView t;
 
     public static final String FOUR_DIGIT_DECIMAL = "##.00##";
     public static final String CRYPTOCURRENCY_INPUT = "crypto";
     public static final String FIAT_INPUT = "fiat";
     public static final String SHARED_PREFERENCES = "MyPrefsFile";
     public static final String BALANCE = "balance";
-    public static final String TWO_DIGIT_DECIMAL = "##.00";
-    public static final String DATE_PATTERN = "\"dd/MM/yyyy\"";
+    public static final String TWO_DIGIT_DECIMAL = "#0.00";
+    public static final String SEVEN_DIGIT_DECIMAL = "#0.00#####";
+    public static final String DATE_PATTERN = "dd/MM/yyyy";
     public static final String PRICE_IN_EURO = "EUR";
     public static final String BUY = "buy";
     public static final String SELL = "sell";
@@ -77,6 +85,13 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
         getSupportActionBar().setTitle(getString(R.string.app_name));
 
         r = this;
+
+        RadioGroup radiogroup = findViewById(R.id.radio_group_buy);
+        radiogroup.check(R.id.radio_buy);
+        radiogroup = findViewById(R.id.radio_group_input);
+        radiogroup.check(R.id.radio_currency_amount);
+        selected = BUY;
+        inputType = CRYPTOCURRENCY_INPUT;
     }
 
     public void setupSpinner() {
@@ -95,7 +110,6 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
 
             @Override
             public void onNothingSelected(AdapterView<?> parentView) {
-
             }
         });
     }
@@ -159,10 +173,9 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
         try {
             jObject = new JSONObject(output);
             price = jObject.getJSONObject(mySpinner.getSelectedItem().toString());
-            TextView t = findViewById(R.id.price_text);
             xRate = price.getDouble(PRICE_IN_EURO);
-            DecimalFormat f = new DecimalFormat(FOUR_DIGIT_DECIMAL);
-            t.setText(getString(R.string.text_price) + f.format(xRate));
+
+            initTextViews();
 
             actualized = System.currentTimeMillis();
         } catch(JSONException e) {
@@ -170,10 +183,25 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
         }
     }
 
+    public void initTextViews() {
+
+        TextView tp = findViewById(R.id.price_text);
+        DecimalFormat f = new DecimalFormat(FOUR_DIGIT_DECIMAL);
+        tp.setText(getString(R.string.text_price) + f.format(xRate));
+        try {
+            double amount = db.getPosition(mySpinner.getSelectedItem().toString());
+            TextView ta = findViewById(R.id.text_owned_amount);
+            f = new DecimalFormat(SEVEN_DIGIT_DECIMAL);
+            ta.setText(getString(R.string.text_owned_amount) + f.format(amount));
+        }catch(Exception e) {
+
+        }
+
+    }
+
     public void buy() {
         //method that gets called if the user buys a cryptocurrency
         EditText et = (EditText) findViewById(R.id.input_amount);
-        if(!checkTransaction()) return;
 
         BigDecimal amount;
         int price; // price in Eurocents
@@ -184,7 +212,7 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
             amount = new BigDecimal(Double.parseDouble(et.getText().toString()) / xRate);
             price = new BigDecimal(Double.parseDouble(et.getText().toString())* 100).intValue();
         } else {
-            Toast.makeText(this, getString(R.string.text_wrong_input), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.text_no_input_type), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -208,10 +236,9 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
     }
 
     public void sell() {
-        //method that gets called if the user buys a cryptocurrency
+        //method that gets called if the user sells a cryptocurrency
 
         EditText et = (EditText) findViewById(R.id.input_amount);
-        if(!checkTransaction()) return;
 
         BigDecimal amount;
         int price; // price in Eurocents
@@ -241,13 +268,14 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
         Log.d("transaction id: ", "id: " + db.insertTransaction(t));
         Log.d("position ", "created/updated: " + db.updatePosition(amount.negate(), requestedCurrency));
 
-        Toast.makeText(this, getString(R.string.choose_input_type_message), Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.transaction_sell_successful_message), Toast.LENGTH_LONG).show();
         initBalanceUI();
     }
 
     public void onCTransaction(View v) {
         //after the click of the transaction button this method delegates the call
         //to either the buy() or the sell() method
+        if(!checkTransaction()) return;
         if(inputType != null && selected != null) {
             if (selected.equals(BUY)) buy();
             if (selected.equals(SELL)) sell();
@@ -267,7 +295,7 @@ public class BuyActivity extends AppCompatActivity implements AsyncResponse {
     }
 
     public boolean checkTransaction() {
-        //verify that the displayed price is not too old
+        //verify that the displayed price is a recent one
         if (System.currentTimeMillis() - actualized > ONE_MINUTE) {
             Toast.makeText(this, getString(R.string.not_actualized_message), Toast.LENGTH_LONG).show();
             executeJsonTask();

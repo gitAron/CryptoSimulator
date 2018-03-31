@@ -8,53 +8,30 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+/**
+ * Created by Aron on 10.03.2018.
+ */
 
 public class CryptoSimulatorDatabase {
+
+    //the database has two tables: transactions and positions.
+    //additionally, it offers methods to save or retrieve data.
     private static final String DATABASE_NAME = "cryptosimulator.db";
     private static final int DATABASE_VERSION = 1;
+    private static final double DELETE_THRESHOLD = 0.0000001;
 
     private static final String DATABASE_TABLE_TRANSACTIONS = "transactions";
     private static final String DATABASE_TABLE_POSITIONS = "positions";
-
-
     public static final String KEY_ID_TRANSACTION = "_transaction_id";
     public static final String KEY_CODE = "currency_code";
     public static final String KEY_AMOUNT = "amount";
     public static final String KEY_DATE = "date";
     public static final String KEY_EUR_AMOUNT = "amount_eur";
 
-
-    public static final int COLUMN_CODE_INDEX = 1;
-    public static final int COLUMN_AMOUNT_INDEX = 2;
-    public static final int COLUMN_DATE_INDEX = 3;
-
-
     private ToDoDBOpenHelper dbHelper;
-
     private SQLiteDatabase db;
-
     private double portfolioValue;
 
     public CryptoSimulatorDatabase(Context context) {
@@ -70,7 +47,6 @@ public class CryptoSimulatorDatabase {
         } catch (SQLException e) {
             db = dbHelper.getReadableDatabase();
         }
-
     }
 
     public void close() {
@@ -92,9 +68,8 @@ public class CryptoSimulatorDatabase {
     public void removeTransaction(Transaction t) {
 
         String[] deleteArgs = new String[]{String.valueOf(t.getCurrency()), t.getFormattedDate()};
-        db.delete(DATABASE_TABLE_TRANSACTIONS, "currency_code=? and date=?", deleteArgs);
+        db.delete(DATABASE_TABLE_TRANSACTIONS, KEY_CODE+"=? and " + KEY_DATE+"=?", deleteArgs);
     }
-
 
     public ArrayList<Transaction> getAllTransactions() {
         ArrayList<Transaction> transactions = new ArrayList<Transaction>();
@@ -108,7 +83,6 @@ public class CryptoSimulatorDatabase {
                 String date = cursor.getString(4);
 
                 transactions.add(new Transaction(code, amount, eurAmount, date));
-
             } while (cursor.moveToNext());
         }
         return transactions;
@@ -150,14 +124,12 @@ public class CryptoSimulatorDatabase {
             BigDecimal oldAmount = new BigDecimal(getPosition(code));
             double newAmount = 0;
             newAmount = oldAmount.add(amount).doubleValue();
-            if(newAmount == 0 ) {
+            if(newAmount < DELETE_THRESHOLD ) {
                 deletePosition(code);
                 return true;
             }
             v.put(KEY_CODE, code);
             v.put(KEY_AMOUNT, newAmount);
-
-            Log.v("csd, updateP", "code: " +code);
 
             db.update(DATABASE_TABLE_POSITIONS, v, KEY_CODE + "=?" , new String[]{code});
             return true;
@@ -170,7 +142,7 @@ public class CryptoSimulatorDatabase {
     public void deletePosition(String code) {
 
         String[] deleteArgs = new String[]{code};
-        db.delete(DATABASE_TABLE_POSITIONS, "currency_code=?", deleteArgs);
+        db.delete(DATABASE_TABLE_POSITIONS, KEY_CODE+"=?", deleteArgs);
     }
 
     public boolean createNewPosition(String code, double amount) {
@@ -207,14 +179,12 @@ public class CryptoSimulatorDatabase {
                 BigDecimal amount = new BigDecimal(cursor.getDouble(1));
 
                 portfolioValue += cursor.getDouble(1);
-
                 positions.add(new Position(code, amount));
 
             } while (cursor.moveToNext());
         }
         return positions;
     }
-
     public double getPortfolioValue() {
         return portfolioValue;
     }

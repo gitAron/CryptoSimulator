@@ -1,61 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    style="@style/AppTheme">
+    style="@style/AppTheme"
+    android:background="#ffffff">
 
-    <TextView
-        android:id="@+id/balance_textview"
-        android:layout_width="wrap_content"
+    <include layout="@layout/toolbar"/>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/text_exchangerate"
-        />
+        android:fitsSystemWindows="true"
+        android:orientation="horizontal"
+        style="@style/AppTheme">
 
     <Spinner
         android:id="@+id/cryptocurrencies_spinner"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_exchangerate"
-        />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_amount"
-        />
-    <EditText
-        android:id="@+id/input_amount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="numberDecimal"
-        />
-
-    <TextView
-        android:id="@+id/price_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
+        android:layout_weight="5"/>
+
+    <TextView
+        android:id="@+id/balance_textview_description"
+        android:textColor="#17910e"
+        android:textSize="15sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_balance"
+        android:gravity="end"
+        android:padding="2dp"
+        android:layout_weight="2"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/balance_textview"
+        android:textColor="#17910e"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        android:gravity="end"/>
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/radio_group_buy"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp">
+        <RadioButton android:id="@+id/radio_buy"
+            android:layout_width="fill_parent"
+            android:backgroundTint="#9ad5ff"
+            android:layout_height="wrap_content"
+            android:text="@string/text_buy"
+            android:onClick="onRadioButtonClicked"
+            android:layout_weight="1"
+            android:buttonTint="#9ad5ff"/>
+        <RadioButton android:id="@+id/radio_sell"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_sell"
+            android:onClick="onRadioButtonClicked"
+            android:layout_weight="1"
+            android:buttonTint="#9ad5ff"/>
+    </RadioGroup>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:orientation="horizontal"
+        style="@style/AppTheme">
+
+        <TextView
+            android:id="@+id/price_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:layout_weight="1"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/text_owned_amount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:maxLines="1"/>
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:orientation="horizontal"
+        style="@style/AppTheme">
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/radio_group_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp">
+        <TextView
+            android:id="@+id/input_type_description"
+            android:textSize="17sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:text="@string/text_input_specifier"
+            android:layout_weight="1"/>
+        <RadioButton android:id="@+id/radio_currency_amount"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_quantity"
+            android:onClick="onRadioButtonClicked"
+            android:layout_weight="1"
+            android:buttonTint="#9ad5ff"/>
+        <RadioButton android:id="@+id/radio_euro_amount"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_euro_value"
+            android:onClick="onRadioButtonClicked"
+            android:layout_weight="1"
+            android:buttonTint="#9ad5ff"/>
+    </RadioGroup>
+
+    </LinearLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:orientation="horizontal"
+        style="@style/AppTheme">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_amount_specifier"
+        android:layout_weight="1"
+        android:textSize="20sp"
+        android:padding="2dp"/>
+
+    <EditText
+        android:id="@+id/input_amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:layout_weight="1"
+        android:padding="4dp"
+        android:backgroundTint="#9ad5ff"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:orientation="horizontal"
+        style="@style/AppTheme"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_credit_entry"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            android:padding="2dp"/>
+
+        <TextView
+            android:id="@+id/cost_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="20sp"
+            android:padding="6dp"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/buy_button"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="@string/button_buy"
-        android:onClick="onCBuy"/>
-
-    <Button
-        android:id="@+id/sell_button"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Sell this amount"
-        android:onClick="onCSell"/>
+        android:text="@string/text_confirm_transaction"
+        android:onClick="onCTransaction"
+        android:padding="18dp"
+        android:layout_gravity="center_horizontal"
+        android:buttonTint="#9ad5ff"/>
 
 </LinearLayout>

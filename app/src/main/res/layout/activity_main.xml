@@ -1,185 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/myScreen"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/myScreen"
+    style="@style/AppTheme"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    style="@style/AppTheme"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/my_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+    <include layout="@layout/toolbar"/>
 
-    <LinearLayout android:id="@+id/innerLayoutOne"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/innerLayoutOne"
+        style="@style/AppTheme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:orientation="horizontal"
-        style="@style/AppTheme"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/portfolio_value_textview_description"
-
-            android:textColor="#17910e"
-            android:textSize="15sp"
+            android:id="@+id/textview_portfolio_value_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Portfolio value"
             android:padding="2dp"
-            />
+            android:text="@string/text_portfolio_value"
+            android:textColor="#17910e"
+            android:textSize="15sp"/>
 
         <TextView
-            android:id="@+id/balance_textview_description"
-
-            android:textColor="#17910e"
-            android:textSize="15sp"
+            android:id="@+id/textview_balance_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Current balance"
-            android:gravity="right"
+            android:gravity="end"
             android:padding="2dp"
-            />
+            android:text="@string/text_balance"
+            android:textColor="#17910e"
+            android:textSize="15sp"/>
 
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/innerLayout"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/innerLayout"
+        style="@style/AppTheme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        android:orientation="horizontal"
-        style="@style/AppTheme"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <TextView
-        android:id="@+id/portfolio_value_textview"
-
-        android:textColor="#17910e"
-        android:textSize="30sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/text_exchangerate"
-        android:padding="2dp"
-        />
-
-    <TextView
-        android:id="@+id/balance_textview"
-
-        android:textColor="#17910e"
-        android:textSize="20sp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="2dp"
-        android:gravity="right"
-        />
-
-    </LinearLayout>
-
-    <LinearLayout android:id="@+id/actualizedLayout"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:orientation="horizontal"
-        style="@style/AppTheme"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/portfolio_value_actualized"
-            android:textSize="15sp"
+            android:id="@+id/portfolio_value_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="2dp"
-            android:layout_weight="1"
-            />
+            android:textColor="#17910e"
+            android:textSize="30sp"/>
 
-        <Switch
-            android:id="@+id/switch1"
-            android:text="Diagram View"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textview_balance"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:layout_weight="1"
-            />
+            android:padding="2dp"
+            android:textColor="#17910e"
+            android:textSize="20sp"/>
 
     </LinearLayout>
 
-    <LinearLayout android:id="@+id/innerLayoutColumn"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/actualizedLayout"
+        style="@style/AppTheme"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
-        style="@style/AppTheme"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:background="#47484c"
-        >
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/column_one_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:maxLines="1"
-        android:textSize="16sp"
-        android:text="Currency"
-        android:layout_weight="1"
-        android:textColor="#ffffff"/>
+        <TextView
+            android:id="@+id/textview_actualized"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="2dp"
+            android:textSize="15sp"/>
 
-    <TextView
-        android:id="@+id/column_two_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:maxLines="1"
-        android:textSize="16sp"
-        android:text="Value"
-        android:layout_weight="1"
-        android:textColor="#ffffff"
-        />
-
-    <TextView
-        android:id="@+id/column_three_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:maxLines="4"
-        android:textSize="16sp"
-        android:text="Holdings"
-        android:layout_weight="1"
-        android:textColor="#ffffff"/>
+        <Switch
+            android:id="@+id/diagram_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="@string/text_diagram"/>
 
     </LinearLayout>
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-
-    <ListView
-        android:id="@+id/positions_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:padding="10dp" />
+        </FrameLayout>
 
     </android.support.v4.widget.SwipeRefreshLayout>
-
 
 </LinearLayout>

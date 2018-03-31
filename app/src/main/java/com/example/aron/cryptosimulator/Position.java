@@ -1,13 +1,14 @@
 package com.example.aron.cryptosimulator;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.math.RoundingMode;
 
 /**
  * Created by Aron on 10.03.2018.
  */
 
-public class Position {
+public class Position implements Serializable{
 
     private String code;
     private BigDecimal amount;
@@ -23,7 +24,8 @@ public class Position {
     }
 
     public BigDecimal getAmount() {
-        return amount;
+
+        return amount.setScale(7, RoundingMode.DOWN);
     }
 
     public void setCode(String code) {

@@ -1,28 +1,25 @@
 package com.example.aron.cryptosimulator;
 
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.support.v7.widget.Toolbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,179 +28,129 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import android.support.v7.app.AppCompatActivity;
 
+/**
+ * Created by Aron on 07.03.2018.
+ */
 
-public class MainActivity extends AppCompatActivity implements AsyncResponse{
+public class MainActivity extends AppCompatActivity implements AsyncResponse {
 
-    //ArrayList<String> transactions;
-    //ArrayAdapter<String> transactions_adapter;
+    //the java class responsible for the main activity/ the start page.
+    //per default the list fragment is active.
+    //if the user uses the switch button the list is replaced with the pie chart fragment.
+
+    public static final String DATE_FORMAT_PATTERN = "hh:mm:ss";
+    public static final String SHARED_PREFERENCES = "MyPrefsFile";
+    public static final String BALANCE = "balance";
+    public static final String TWO_DIGIT_DECIMAL = "##.00";
+    public static final String JSON_STRING = "jsonString";
+    public static final String POSITIONS_ARRAY = "positions";
+    public static final String PRICE_IN_EURO = "EUR";
+    public static final String FIRST_TIME = "firstTime";
+    public static final int MINIMUM_INPUT = 50;
+    public static final int MAXIMUM_INPUT = 1000000000;
     CryptoSimulatorDatabase db;
-    ArrayList<Position> positions;
-    private PositionAdapter positions_adapter;
-
-    private boolean firstTime;
-    private JSONObject jObject;
-    JsonTask jsonTask;
     Context c;
     AsyncResponse ar;
-    Timestamp actualized;
-
+    Switch diagramSwitch;
     SwipeRefreshLayout mSwipeRefreshLayout;
+    JsonTask jsonTask;
+    ArrayList<Position> positions;
+    private JSONObject jObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (isFirstTime()) showDialog();
+
         initDB();
-        initListAdapter();
-
-        if(isFirstTime()) showDialog();
-
+        initPositions();
         initBalanceUI();
-
-        initPositionUI();
+        initSwipeLayout();
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
-        c= this;
-        ar = this;
 
+        c = this;
+        ar = this;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //if the user resumes to the home screen all the values have to be actualized
+        initPositions();
+        initBalanceUI();
+        setupSwitch();
+    }
+
+    public void initSwipeLayout() {
+        ////initate the refresh functionality that gets activated when the user swipes up on either the list or the pie fragment
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             public void onRefresh() {
-                Log.v("v", "onrefreshlistener");
-                jsonTask =new JsonTask();
+                jsonTask = new JsonTask();
                 jsonTask.delegate = ar;
-
-                jsonTask.execute("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,LTC,ADA,NEO,XLM,EOS,XMR&tsyms=EUR");
-
+                //register this activity as an AsyncResponse at the HTTP service so the results can be passed via the 'onPostExecute' method
+                jsonTask.execute(getString(R.string.json_string));
             }
         });
-
     }
 
     public void refreshActualized() {
-        TextView t = findViewById(R.id.portfolio_value_actualized);
-        actualized = new Timestamp(System.currentTimeMillis());
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("hh:mm:ss");
-
-        t.setText("Last actualized: "+dateFormatter.format(actualized));
+        TextView t = findViewById(R.id.textview_actualized);
+        SimpleDateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT_PATTERN);
+        t.setText(getString(R.string.text_actualized) + dateFormatter.format(new Timestamp(System.currentTimeMillis())));
+        //set the actualized textview to the current time
     }
 
-
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //configurate the toolbar
         Intent intent;
-        switch (item.getItemId())
-        {
-            case R.id.action_transaction_history: //Your task
+        switch (item.getItemId()) {
+            case R.id.action_transaction_history:
                 intent = new Intent(MainActivity.this, TransactionsActivity.class);
-                Log.v("v", "inside onNavTrans");
                 startActivity(intent);
                 return true;
 
-            case R.id.action_add_transaction: //Your task
-
+            case R.id.action_add_transaction:
                 intent = new Intent(MainActivity.this, BuyActivity.class);
-            startActivity(intent);
-            return true;
+                startActivity(intent);
+                return true;
 
             case R.id.action_settings:
                 intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
 
-
-            default:return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        //inflate the toolbar and remove the home icon (because the user is already there)
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.toolbar, menu);
+        MenuItem settingsItem = menu.findItem(R.id.action_home);
+        settingsItem.setVisible(false);
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void initPositionUI() {
-
-    }
-
-    public void initBalanceUI() {
-        SharedPreferences mPreferences = this.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
-        int balance = mPreferences.getInt("balance", 0);
-        TextView t = findViewById(R.id.balance_textview);
-
-        DecimalFormat f = new DecimalFormat("##.00");
-        t.setText(f.format((double) balance / 100) + "€");
-    }
-
-    private boolean isFirstTime() {
-            SharedPreferences mPreferences = this.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
-            return mPreferences.getBoolean("firstTime", true);
-    }
-
-    public void showDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose your starting money (Euro/€)");
-
-// Set up the input
-        final EditText input = new EditText(this);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        builder.setView(input);
-        final Context c = this;
-
-// Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                handleDialogInput(Integer.parseInt(input.getText().toString()));
-                SharedPreferences mPreferences = c.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = mPreferences.edit();
-                editor.putBoolean("firstTime", false);
-                editor.commit();
-
+    public void setupSwitch() {
+        //show the fragment that the user chose using the switch
+        diagramSwitch = findViewById(R.id.diagram_switch);
+        diagramSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    showPieFragment();
+                } else {
+                    showListFragment();
+                }
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-    }
-
-    public void handleDialogInput(int input) {
-        if(input <50 || input > 1000000) {
-            Toast.makeText(this, "Choose a value between 50 and 1000000", Toast.LENGTH_LONG).show();
-            showDialog();
-        } else {
-            saveStartingMoneyInput(input);
-        }
-    }
-
-    public void saveStartingMoneyInput(int input) {
-        Log.v("v", "inside savesmi: " + input);
-
-        SharedPreferences mPreferences = this.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
-        //firstTime = mPreferences.getInt("balance", 0);
-            SharedPreferences.Editor editor = mPreferences.edit();
-            editor.putInt("balance", input*100);
-            editor.commit();
-
-            initBalanceUI();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        initListAdapter();
-        initBalanceUI();
     }
 
     public void initDB() {
@@ -211,64 +158,152 @@ public class MainActivity extends AppCompatActivity implements AsyncResponse{
         db.open();
     }
 
-    @Override
-    public void processFinish(String output){
-        //Here you will receive the result fired from async class
-        //of onPostExecute(result) method.
-        Log.v("processFinish MA", "hey hey heeyyyy ");
+    public void initBalanceUI() {
+        //get the balance from shared preferences and update the corresponding textview
+        SharedPreferences mPreferences = this.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        int balance = mPreferences.getInt(BALANCE, 0);
+        TextView t = findViewById(R.id.textview_balance);
+        DecimalFormat f = new DecimalFormat(TWO_DIGIT_DECIMAL);
+        t.setText(f.format((double) balance / 100) + getString(R.string.euro_symbol));
+    }
 
+    private boolean isFirstTime() {
+        //check if the user uses the app for the first time or has not entered the amount of his starting money yet
+        SharedPreferences mPreferences = this.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        return mPreferences.getBoolean(FIRST_TIME, true);
+    }
+
+    public void showDialog() {
+        //use a builder to configurate the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.text_start_money));
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        builder.setView(input);
+
+        builder.setPositiveButton(getString(R.string.text_positive_button), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(input.getText().toString().length() <1) return;
+                handleDialogInput(Integer.parseInt(input.getText().toString()));
+                SharedPreferences mPreferences = c.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = mPreferences.edit();
+                editor.putBoolean(FIRST_TIME, false);
+                editor.commit();
+            }
+        });
+        builder.setNegativeButton(getString(R.string.text_negative_button), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    public void handleDialogInput(int input) {
+        //user input from the starting money dialog is verified here
+        if (input < MINIMUM_INPUT || input > MAXIMUM_INPUT) {
+            Toast.makeText(this, getString(R.string.text_wrong_input), Toast.LENGTH_LONG).show();
+            showDialog();
+        } else {
+            saveStartingMoneyInput(input);
+        }
+    }
+
+    public void saveStartingMoneyInput(int input) {
+        //user input from the starting money dialog is saved here
+        SharedPreferences mPreferences = this.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = mPreferences.edit();
+        editor.putInt(BALANCE, input * 100);
+        editor.commit();
+        initBalanceUI();
+    }
+
+    @Override
+    public void processFinish(String output) {
+        //overriding method from the AsyncResponse Interface
+        //this method gets called from the onPostExecute with the result from the http response
         if (mSwipeRefreshLayout.isRefreshing()) {
             mSwipeRefreshLayout.setRefreshing(false);
         }
 
         try {
             jObject = new JSONObject(output);
-            updateListAdapter();
-
-        } catch(JSONException e) {
+            if (diagramSwitch.isChecked()) {
+                showPieFragment();
+            } else {
+                showListFragment();
+            }
+            initPortfolioValue();
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
         refreshActualized();
     }
 
-    private void updateListAdapter() {
-        ListView list = (ListView) findViewById(R.id.positions_list);
-        positions = db.getAllPositions();
-        Log.v("MainActivity, iLA", "positionsArray: " + positions);
-        positions_adapter = new PositionAdapter(this, positions, jObject);
-        list.setAdapter(positions_adapter);
-        positions_adapter.notifyDataSetChanged();
-        initPortfolioValue();
+    public void showListFragment() {
+        //initialize the listfragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction =
+                fragmentManager.beginTransaction();
+        PositionListFragment fragment = new PositionListFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putString(JSON_STRING, jObject.toString());
+        bundle.putSerializable(POSITIONS_ARRAY, positions);
+        fragment.setArguments(bundle);
+
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
     }
 
-    private void initListAdapter() {
-        updateListAdapter();
+    public void showPieFragment() {
+        //initialize the pie chart fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        PieFragment fragment = new PieFragment();
 
-        jsonTask =new JsonTask();
+        Bundle bundle = new Bundle();
+        bundle.putString(JSON_STRING, jObject.toString());
+        bundle.putSerializable(POSITIONS_ARRAY, positions);
+        fragment.setArguments(bundle);
+
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
+    }
+
+    private void initPositions() {
+        //fill the positions ArrayList and make a http response via the JsonTask class
+        positions = db.getAllPositions();
+        jsonTask = new JsonTask();
         jsonTask.delegate = this;
-        //Log.v("getView", "hey hey heeeyyyy");
-
-        jsonTask.execute("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,LTC,ADA,NEO,XLM,EOS,XMR&tsyms=EUR");
+        jsonTask.execute(getString(R.string.json_string));
     }
 
     public void initPortfolioValue() {
+        //iterate through the positions list to accumulate the value of the portfolio
         TextView t = (TextView) findViewById(R.id.portfolio_value_textview);
-         JSONObject price;
+        double portfoltioV = 0;
+        for (Position p : positions) {
+            portfoltioV += getValueFromP(p);
+        }
+        DecimalFormat f = new DecimalFormat(TWO_DIGIT_DECIMAL);
+        t.setText("" + f.format(portfoltioV) + getString(R.string.euro_symbol));
+    }
 
-         double portfoltioV = 0;
-
-        for(Position p : positions) {
-            if (jObject != null) {
-                try {
-                    p.getAmount();
-                    price = jObject.getJSONObject(p.getCode());
-                    portfoltioV += p.getAmount().doubleValue() * price.getDouble("EUR");
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
+    public double getValueFromP(Position p) {
+        //give the double value of a Position object
+        if (jObject != null) {
+            JSONObject price;
+            try {
+                p.getAmount();
+                price = jObject.getJSONObject(p.getCode());
+                return p.getAmount().doubleValue() * price.getDouble(PRICE_IN_EURO);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
         }
-        DecimalFormat f = new DecimalFormat("##.00");
-        t.setText("" + f.format(portfoltioV) + "€");
+        return 0;
     }
 }

@@ -5,5 +5,7 @@ package com.example.aron.cryptosimulator;
  */
 
 public interface AsyncResponse {
+    //interface that has to be implemented by classes so they can get notified
+    //when the HTTP process is finished
     void processFinish(String output);
 }

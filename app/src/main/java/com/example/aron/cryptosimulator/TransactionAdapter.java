@@ -16,8 +16,13 @@ import java.util.ArrayList;
 
 
 public class TransactionAdapter extends ArrayAdapter<Transaction> {
+
     private ArrayList<Transaction> transactions;
     private Context context;
+
+    public static final String SEVEN_DIGIT_DECIMAL = "##.00#####";
+    public static final String TWO_DIGIT_DECIMAL = "##.00";
+    public static final String EURO_SYMBOL = "€";
 
     public TransactionAdapter(Context context, ArrayList<Transaction> transactions) {
         super(context, R.layout.transaction_list, transactions);
@@ -45,21 +50,17 @@ public class TransactionAdapter extends ArrayAdapter<Transaction> {
             TextView transAmount = v.findViewById(R.id.transaction_amount);
             TextView transEurAmount = v.findViewById(R.id.transaction_eur_amount);
 
-
             double eurAmount = transaction.getEurAmount() / 100;
-            DecimalFormat f = new DecimalFormat("##.00");
+            DecimalFormat f = new DecimalFormat(TWO_DIGIT_DECIMAL);
 
-            transEurAmount.setText(f.format(eurAmount));
+            transEurAmount.setText(f.format( - eurAmount) + EURO_SYMBOL);
 
-            f = new DecimalFormat("##.00#####");
+            f = new DecimalFormat(SEVEN_DIGIT_DECIMAL);
 
             transCode.setText(transaction.getCurrency());
             transDate.setText(transaction.getFormattedDate());
             transAmount.setText(""+f.format(transaction.getAmount()));
-
         }
-
         return v;
     }
-
 }

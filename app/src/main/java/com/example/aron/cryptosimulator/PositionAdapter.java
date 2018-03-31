@@ -1,7 +1,6 @@
 package com.example.aron.cryptosimulator;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,18 +22,19 @@ public class PositionAdapter extends ArrayAdapter<Position> {
 
     private ArrayList<Position> positions;
     private Context context;
-    JsonTask jsonTask;
     JSONObject jObject;
     JSONObject price;
-    double xRate;
     String code;
     View v;
+
+    public static final String SEVEN_DIGIT_DECIMAL = "#0.00#####";
+    public static final String TWO_DIGIT_DECIMAL = "#0.00";
+    public static final String PRICE_IN_EURO = "EUR";
 
     public PositionAdapter(Context context, ArrayList<Position> positions, JSONObject jObject) {
         super(context, R.layout.position_list, positions);
         this.context = context;
         this.positions = positions;
-        Log.v("Constructor PA",  " Object = null - enough for a crash?");
         this.jObject = jObject;
     }
 
@@ -42,31 +42,21 @@ public class PositionAdapter extends ArrayAdapter<Position> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         v = convertView;
-
         if (v == null) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v = inflater.inflate(R.layout.position_list, null);
-
         }
 
         Position pos = positions.get(position);
 
-
         if (pos != null) {
             TextView posCode = (TextView) v.findViewById(R.id.position_code);
             TextView posAmount = (TextView) v.findViewById(R.id.position_amount);
-            TextView posValue = (TextView) v.findViewById(R.id.position_value);
 
             code = pos.getCode();
 
-
-            //jsonTask =new JsonTask();
-            //jsonTask.delegate = this;
-            //Log.v("getView", "hey hey heeeyyyy");
-
-            //jsonTask.execute("https://min-api.cryptocompare.com/data/pricemulti?fsyms=BTC,ETH,XRP,BCH,LTC,ADA,NEO,XLM,EOS,XMR&tsyms=EUR");
-            DecimalFormat f = new DecimalFormat("##.00#####");
+            DecimalFormat f = new DecimalFormat(SEVEN_DIGIT_DECIMAL);
             posCode.setText(pos.getCode());
             posAmount.setText("" + f.format(pos.getAmount()));
 
@@ -74,15 +64,13 @@ public class PositionAdapter extends ArrayAdapter<Position> {
             if(jObject != null) {
                 price = jObject.getJSONObject(code);
                 TextView t = v.findViewById(R.id.position_value);
-                f = new DecimalFormat("##.00");
-
-                t.setText(f.format(pos.getAmount().multiply(new BigDecimal(price.getDouble("EUR")))));
+                f = new DecimalFormat(TWO_DIGIT_DECIMAL);
+                t.setText(f.format(pos.getAmount().multiply(new BigDecimal(price.getDouble(PRICE_IN_EURO)))));
             }
             } catch(JSONException e) {
                 throw new RuntimeException(e);
             }
         }
-
         return v;
     }
 }

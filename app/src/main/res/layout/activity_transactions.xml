@@ -3,11 +3,68 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout android:id="@+id/fragment_innerLayoutColumn"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        style="@style/AppTheme"
+        android:background="#47484c">
+
+        <TextView
+            android:id="@+id/column_one_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:maxLines="1"
+            android:textSize="16sp"
+            android:text="@string/text_column_code"
+            android:layout_weight="1"
+            android:textColor="#ffffff"
+            android:gravity="start"/>
+
+        <TextView
+            android:id="@+id/column_two_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:maxLines="1"
+            android:textSize="16sp"
+            android:text="@string/text_column_amount"
+            android:layout_weight="1"
+            android:textColor="#ffffff"/>
+
+        <TextView
+            android:id="@+id/column_three_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:maxLines="4"
+            android:textSize="16sp"
+            android:text="@string/text_column_value"
+            android:layout_weight="1"
+            android:textColor="#ffffff"/>
+
+        <TextView
+            android:id="@+id/column_four_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:maxLines="4"
+            android:textSize="16sp"
+            android:text="@string/text_column_date"
+            android:layout_weight="1"
+            android:textColor="#ffffff"/>
+
+    </LinearLayout>
+
     <ListView
         android:id="@+id/transactions_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
-        android:padding="10dp" />
+        android:padding="10dp"/>
 
 </LinearLayout>

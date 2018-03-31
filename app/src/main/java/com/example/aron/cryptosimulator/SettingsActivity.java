@@ -10,6 +10,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     CryptoSimulatorDatabase db;
 
+    public static final String SHARED_PREFERENCES = "MyPrefsFile";
+    public static final String DATABASE_OBJECT = "cryptosimulator.db";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,7 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void onDeleteDb(View v) {
         initDB();
-        this.deleteDatabase("cryptosimulator.db");
+        this.deleteDatabase(DATABASE_OBJECT);
     }
 
     public void onDeleteSp(View v) {
@@ -26,7 +29,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void deleteSharedPref() {
-        SharedPreferences mPreferences = this.getSharedPreferences("MyPrefsFile", Context.MODE_PRIVATE);
+        SharedPreferences mPreferences = this.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = mPreferences.edit();
         editor.clear();
         editor.commit();
